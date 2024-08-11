@@ -3,7 +3,7 @@ The Complete Fair Scheduler (CFS) is the default process scheduler for the Linux
 
 ## 1. CFS with Group scheduling enhancements
 When Linux's core scheduler wants to pick next task from CFS, pick_next_task_fair will be called.
-![pick_next_task_fair](traverse.png)
+![pick_next_task_fair](traverse.svg)
 
 As illustrated by above figure, pick_next_task_fair begin with CPU's runqueue's
 cfs_rq, then in a while loop, pick_next_entity is called to select best se from cfs_rq, and continue with cfs_rq of the selected se.
@@ -31,7 +31,7 @@ which means the difference between cfs_rq's average runtime and the process's ru
 ### 2.3 deadline
 In the context of the Completely Fair Scheduler (CFS), "deadline" isn't a concept that directly applies as it might in real-time scheduling or the Deadline scheduler (a different Linux scheduler). However, the term might come up in discussions about how CFS indirectly handles task prioritization and scheduling latency.
 
-In function pick_eevdf, 
+In function pick_eevdf, ![pick_pick_eevdf](pick_eevdf.svg)
 
 
 
