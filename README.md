@@ -31,7 +31,16 @@ which means the difference between cfs_rq's average runtime and the process's ru
 ### 2.3 deadline
 In the context of the Completely Fair Scheduler (CFS), "deadline" isn't a concept that directly applies as it might in real-time scheduling or the Deadline scheduler (a different Linux scheduler). However, the term might come up in discussions about how CFS indirectly handles task prioritization and scheduling latency.
 
-In function pick_eevdf, ![pick_pick_eevdf](pick_eevdf.svg)
+In function pick_eevdf,  kernel travel from the root of cfs_rq's red-black tree in a top down manner. As is illustrated in ![pick_pick_eevdf](pick_eevdf.svg).
+
+1. firstly if current node is not eligible, let node = node->rb_left, continue.
+
+2. if current node has the smallest deadline, select current node and break.
+
+3. if left child's sub tree has the smallest deadline, let node = node->rb_left, continue.
+
+4. let node = node->rb_right, continue.
+
 
 
 
