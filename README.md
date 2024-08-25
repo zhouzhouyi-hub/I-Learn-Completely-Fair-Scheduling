@@ -42,5 +42,13 @@ In function pick_eevdf,  kernel travel from the root of cfs_rq's red-black tree 
 4. let node = node->rb_right, continue.
 
 
+## 3. load balance
+
+In a multi-processor system, load balancing is crucial to ensure that CPU resources are utilized efficiently.
+CFS performs load balancing by migrating tasks between CPUs to avoid CPU overload and to maintain fairness across all CPUs.
+
+Load balancing in CFS happens periodically, or when specific events trigger it (e.g., a task waking up, task creation, etc.).
 
 
+As is illustrated in ![load_balance](load_balance.svg), when picking next task in CFS, and found current rq is idle, then use
+load_balance to find busiest CPU sched group from current domain hiearchy, then find the busiest queue from that sched group.
