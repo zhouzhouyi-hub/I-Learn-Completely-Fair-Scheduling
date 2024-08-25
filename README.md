@@ -49,6 +49,8 @@ CFS performs load balancing by migrating tasks between CPUs to avoid CPU overloa
 
 Load balancing in CFS happens periodically, or when specific events trigger it (e.g., a task waking up, task creation, etc.).
 
+![load_balance](load_balance.svg)
 
-As is illustrated in ![load_balance](load_balance.svg), when picking next task in CFS, and found current rq is idle, then use
+
+As is illustrated in above figure, when picking next task in CFS, and found current rq is idle, then use
 load_balance to find busiest CPU sched group from current domain hiearchy, then find the busiest queue from that sched group.
