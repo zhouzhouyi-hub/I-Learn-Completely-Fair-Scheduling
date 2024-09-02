@@ -54,3 +54,34 @@ Load balancing in CFS happens periodically, or when specific events trigger it (
 
 As is illustrated in above figure, when picking next task in CFS, and found current rq is idle, then use
 load_balance to find busiest CPU sched group from current domain hiearchy, then find the busiest queue from that sched group.
+
+## 4. Idle CPU Scan
+One of the key decisions the CFS scheduler makes is determining which CPU to run a new or migrated task on, particularly in systems with multiple CPUs or cores. Selecting the most "idle" CPU can help balance the load across the system, improving overall performance and efficiency.
+
+
+Idle CPU Scan is done in function select_idle_cpu. select_idle_cpu try cpu one by one in a loop to find a cpu that is idle (by calling __select_idle_cpu).
+
+Further, Intel developer has found that when the ystem is overloaded, select_idle_cpu() might spend too much time searching for an idle CPU[1]. So, [1] summarize that the lower the util_avg is, the more select_idle_cpu()
+should scan for idle CPU, and vice versa. When the sum of util_avg
+in this LLC domain hits 85% or above, the scan stops. [1] introduce a quadratic function:
+
+y = SCHED_CAPACITY_SCALE - p * x^2
+and y'= y / SCHED_CAPACITY_SCALE
+
+nr_scan = llc_weight * y'
+
+Where x is the ratio of sum_util compared to the CPU capacity.
+
+According to [1], choosing quadratic function is because:
+
+[1] Compared to the linear function, it scans more aggressively when the
+    sum_util is low.
+    
+[2] Compared to the exponential function, it is easier to calculate.
+
+[3] It seems that there is no accurate mapping between the sum of util_avg
+    and the number of CPUs to be scanned. Use heuristic scan for now.
+
+## 5. References
+
+[1] [PATCH v4] sched/fair: Introduce SIS_UTIL to search idle CPU based on sum of util_avg https://lore.kernel.org/all/20220612163428.849378-1-yu.c.chen@intel.com/
