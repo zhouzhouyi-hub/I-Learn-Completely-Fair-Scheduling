@@ -82,6 +82,32 @@ According to [1], choosing quadratic function is because:
 [3] It seems that there is no accurate mapping between the sum of util_avg
     and the number of CPUs to be scanned. Use heuristic scan for now.
 
-## 5. References
+## 5. PELT Clock
+The PELT Clock is introduced because of CPU capacity [2]. According to [2], some CPU has more
+capacity than other CPU. In Example 2 of [2], capacities-dmips-mhz are scaled w.r.t. 2 (cpu@0 and cpu@1),
+this means that first cpu@0 and cpu@1 are twice fast than cpu@2 and cpu@3 (at the same frequency).
+
+When a rq runs at a lower compute capacity, it will need
+ more time to do the same amount of work than at max
+capacity. In order to be invariant, we scale the delta to
+reflect how much work has been really done.
+
+We can see that when computing load average of a cfs_rq, cfs_rq_clock_pelt is used as the time.
+
+![PELToverload](PELT-overload.svg)
+
+In function update_sg_lb_stats, sgs->avg_load is computed as
+```
+9688         if (sgs->group_type == group_overloaded)
+9689                 sgs->avg_load = (sgs->group_load * SCHED_CAPACITY_SCALE) /
+9690                                 sgs->group_capacity;
+```
+
+The caller of update_sg_lb_stats: update_sd_lb_stats iterate through the candidate sched_groups
+to find best sched_group, when the sched_group's group_type is group_overloaded sgs->avg_load
+is the influence factor.
+
+## 6. References
 
 [1] [PATCH v4] sched/fair: Introduce SIS_UTIL to search idle CPU based on sum of util_avg https://lore.kernel.org/all/20220612163428.849378-1-yu.c.chen@intel.com/
+[2] https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpu-capacity.txt
