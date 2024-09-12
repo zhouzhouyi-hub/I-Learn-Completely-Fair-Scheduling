@@ -107,6 +107,8 @@ The caller of update_sg_lb_stats: update_sd_lb_stats iterate through the candida
 to find best sched_group, when the sched_group's group_type is group_overloaded sgs->avg_load
 is the influence factor.
 
+![PELToverload2](PELT-overload2.svg)
+
 ## 6. References
 
 [1] [PATCH v4] sched/fair: Introduce SIS_UTIL to search idle CPU based on sum of util_avg https://lore.kernel.org/all/20220612163428.849378-1-yu.c.chen@intel.com/
