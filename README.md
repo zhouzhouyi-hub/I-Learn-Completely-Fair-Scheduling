@@ -109,7 +109,12 @@ is the influence factor.
 
 ![PELToverload2](PELT-overload2.svg)
 
-## 6. References
+## 6. min_vruntime
+
+According to [3], "CFS also maintains the rq->cfs.min_vruntime value, which is a monotonic increasing value tracking the smallest vruntime among all tasks in the runqueue. The total amount of work done by the system is tracked using min_vruntime; that value is used to place newly activated entities on the left side of the tree as much as possible."
+
+## 7. References
 
 [1] [PATCH v4] sched/fair: Introduce SIS_UTIL to search idle CPU based on sum of util_avg https://lore.kernel.org/all/20220612163428.849378-1-yu.c.chen@intel.com/
 [2] https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpu-capacity.txt
+[3] https://docs.kernel.org/scheduler/sched-design-CFS.html
