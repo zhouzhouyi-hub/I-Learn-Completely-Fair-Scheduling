@@ -113,7 +113,14 @@ is the influence factor.
 
 According to [3], "CFS also maintains the rq->cfs.min_vruntime value, which is a monotonic increasing value tracking the smallest vruntime among all tasks in the runqueue. The total amount of work done by the system is tracked using min_vruntime; that value is used to place newly activated entities on the left side of the tree as much as possible."
 
-## 7. References
+## 7. Other details
+
+### 7.1 runnable_avg_yN_inv
+The Linux kernel compute yN_inv as x = ((1UL<<32)-1)*pow(y, i), this is because y=0.97857206208770009 and there is
+no float support in kernel, so we first comput result = val*((1UL<<32)-1)*pow(y, i), then compute result/(1UL<<32)
+
+
+## 8. References
 
 [1] [PATCH v4] sched/fair: Introduce SIS_UTIL to search idle CPU based on sum of util_avg https://lore.kernel.org/all/20220612163428.849378-1-yu.c.chen@intel.com/
 [2] https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpu-capacity.txt
