@@ -119,9 +119,59 @@ According to [3], "CFS also maintains the rq->cfs.min_vruntime value, which is a
 The Linux kernel compute yN_inv as x = ((1UL<<32)-1)*pow(y, i), this is because y=0.97857206208770009 and there is
 no float support in kernel, so we first comput result = val*((1UL<<32)-1)*pow(y, i), then compute result/(1UL<<32)
 
+### 7.2 Per Entity Load Tracking
+According to [4], quote:
+
+Per-entity load tracking addresses these problems by pushing this tracking down to the level of individual "scheduling entities" — a process or a control group full of processes. To that end, (wall clock) time is viewed as a sequence of 1ms (actually, 1024µs) periods. An entity's contribution to the system load in a period pi is just the portion of that period that the entity was runnable — either actually running, or waiting for an available CPU. The trick, though, is to get an idea of contributed load that covers more than 1ms of real time; this is managed by adding in a decayed version of the entity's previous contribution to system load. If we let Li designate the entity's load contribution in period pi, then an entity's total contribution can be expressed as:
+
+```
+L = L0 + L1*y + L2*y^2 + L3*y^3 + ...
+```
+In the current code, y has been chosen so that y^32 is equal to 0.5, though, of course, the calculation is done with integer arithmetic in the kernel (as detailed in 7.1). Thus, an entity's load contribution 32ms in the past is weighted half as strongly as its current contribution.
+
+For example, in function accumulate_sum, the input argument delta is the time passed in us, the degeneration rate is computed
+in 1024us base. As illustrated in head comment of this function:
+
+```
+/*                                                                              
+ * Accumulate the three separate parts of the sum; d1 the remainder             
+ * of the last (incomplete) period, d2 the span of full periods and d3          
+ * the remainder of the (incomplete) current period.                            
+ *                                                                              
+ *           d1          d2           d3                                        
+ *           ^           ^            ^                                         
+ *           |           |            |                                         
+ *         |<->|<----------------->|<--->|                                      
+ * ... |---x---|------| ... |------|-----x (now)
+ *                                                                                                                               
+ *                           p-1 
+ * u' = (u + d1) y^p + 1024 \Sum y^n + d3 y^0
+ *                           n=1                                                                                                 
+ *
+ *    = u y^p +                                 (Step 1)
+ *                                                                                                                               
+ *                     p-1                              
+ *      d1 y^p + 1024 \Sum y^n + d3 y^0         (Step 2)
+ *                     n=1
+ ```
+For example, given sa->period_contrib==589, delta==799, weight==91833, we have:
+
+d1==1024-589,  periods==589+799/1024==1, d3==(589+799)%1024==364
+
+```
+ *           d1   d3                                        
+ *           ^    ^                                         
+ *           |    |                                         
+ *         |<->|<--->|                                      
+ * ... |---x---|-----x (now)
+```
+
+
+
 
 ## 8. References
 
 [1] [PATCH v4] sched/fair: Introduce SIS_UTIL to search idle CPU based on sum of util_avg https://lore.kernel.org/all/20220612163428.849378-1-yu.c.chen@intel.com/
 [2] https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpu-capacity.txt
 [3] https://docs.kernel.org/scheduler/sched-design-CFS.html
+[4] https://lwn.net/Articles/531853/
