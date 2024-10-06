@@ -156,7 +156,7 @@ in 1024us base. As illustrated in head comment of this function:
  ```
 For example, given sa->period_contrib==589, delta==799, weight==91833, we have:
 
-d1==1024-589,  periods==589+799/1024==1, d3==(589+799)%1024==364
+d1==1024-589==435,  periods==589+799/1024==1, d3==(589+799)%1024==364
 
 ```
  *           d1   d3                                        
@@ -164,10 +164,28 @@ d1==1024-589,  periods==589+799/1024==1, d3==(589+799)%1024==364
  *           |    |                                         
  *         |<->|<--->|                                      
  * ... |---x---|-----x (now)
+ * ... |589|435|-364-x (now)
+ * ... |  *y^1 | *y^0  (now)
+```
+### 7.3 get_pelt_divider 
+The function get_pelt_divider is used to compute average measurement of various CFS running statistics.
+For example, in function ___update_load_avg, load_avg is computed as
+
+```
+sa->load_avg = div_u64(load * sa->load_sum, divider);
 ```
 
+The divider is LOAD_AVG_MAX - 1024 + period_contrib
+```
+LOAD_AVG_MAX = L0 + L1*y + L2*y^2 + L3*y^3 + ...
+```
+with L0、L1、... LN all equals 1024.
 
-
+and load_sum is computed as
+```
+load_sum = l0*period_contrib + l1*y + l2*y2
+```
+with li = 1 if there is load during ith period, 0 otherwise
 
 ## 8. References
 
